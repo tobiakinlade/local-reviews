@@ -11,16 +11,21 @@ export default function Item({ item }) {
     <div className='text-center'>
       <h1 className='mt-10 font-extrabold text-2xl'>{item.name}</h1>
       <h2 className='mt-10 font-bold'>{item.description}</h2>
-      {item.rating !== 0 && (
-        <h2 className='mt-10 font-bold'>
-          Rating: {item.rating} / 5{' '}
-          {[...Array(Math.round(item.rating / 10))].map(() => '⭐️ ')}
-        </h2>
+      {item.reviews.length > 0 && (
+        <div>
+          <h2 className='mt-10 mb-5 font-extrabold text-lg'>Reviews</h2>
+          {item.reviews.map((review) => (
+            <div className='mb-3'>
+              <p>{[...Array(Math.round(item.rating))].map(() => '⭐️ ')}</p>
+              <p>{review.description}</p>
+            </div>
+          ))}
+        </div>
       )}
       <h2 className='mt-10 font-extrabold text-lg'>Add a new review</h2>
       <form
         className='mt-3'
-        onChange={async (e) => {
+        onSubmit={async (e) => {
           e.preventDefault()
           await fetch('/api/review', {
             body: JSON.stringify({

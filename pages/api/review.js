@@ -6,10 +6,10 @@ export default async function handler(req, res) {
     return res.status(501).end()
   }
 
-  const session = getSession({ req })
+  const session = await getSession({ req })
   if (!session) return res.status(401).json({ message: 'Not logged in' })
 
-  const user = await prisma.findUnique({
+  const user = await prisma.user.findUnique({
     where: {
       id: session.user.id,
     },
@@ -24,6 +24,30 @@ export default async function handler(req, res) {
       item: {
         connect: { id: req.body.item },
       },
+    },
+  })
+
+  const reviews = await prisma.review.findMany({
+    where: {
+      item: {
+        id: req.body.item,
+      },
+    },
+  })
+
+  const ratingValues = reviews.reduce((acc, review) => {
+    console.log(acc, review.rating)
+    return acc + review.rating
+  }, 0)
+
+  const rating = ratingValues / reviews.length
+
+  await prisma.item.update({
+    data: {
+      raring: Math.floor(rating * 10),
+    },
+    where: {
+      id: req.body.item,
     },
   })
   res.end()
